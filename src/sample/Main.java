@@ -18,7 +18,40 @@ public class Main extends Application {
         Button btn_step = new Button("Next Step");
         btn_step.setOnAction(e -> Solver.nextStep());
 
-        Solver.initialize(gridSize);
+        int[][][] clues = new int[2][gridSize][];
+        clues[0][0] = new int[]{1, 3};
+        clues[0][1] = new int[]{1, 1};
+        clues[0][2] = new int[]{1, 1};
+        clues[0][3] = new int[]{2, 2};
+        clues[0][4] = new int[]{1, 1, 3};
+        clues[0][5] = new int[]{1, 2, 5};
+        clues[0][6] = new int[]{1, 9};
+        clues[0][7] = new int[]{13};
+        clues[0][8] = new int[]{10, 1};
+        clues[0][9] = new int[]{10};
+        clues[0][10] = new int[]{2, 3, 5};
+        clues[0][11] = new int[]{1, 3, 3, 1};
+        clues[0][12] = new int[]{4, 6, 1};
+        clues[0][13] = new int[]{8, 1, 1};
+        clues[0][14] = new int[]{1, 1, 3, 1};
+
+        clues[1][0] = new int[]{1};
+        clues[1][1] = new int[]{4};
+        clues[1][2] = new int[]{5, 2, 3};
+        clues[1][3] = new int[]{3, 3, 3};
+        clues[1][4] = new int[]{1, 8};
+        clues[1][5] = new int[]{7, 2};
+        clues[1][6] = new int[]{8, 3};
+        clues[1][7] = new int[]{2, 4, 3};
+        clues[1][8] = new int[]{2, 9};
+        clues[1][9] = new int[]{1, 8};
+        clues[1][10] = new int[]{1, 9};
+        clues[1][11] = new int[]{7, 3};
+        clues[1][12] = new int[]{5, 2};
+        clues[1][13] = new int[]{1, 2};
+        clues[1][14] = new int[]{2};
+
+        Solver.initialize(gridSize, clues);
         IntegerProperty[][] grid = Solver.getGrid();
 
         for(int i = 0; i < gridSize; i++) {
