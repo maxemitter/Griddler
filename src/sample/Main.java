@@ -52,11 +52,19 @@ public class Main extends Application {
         clues[1][14] = new int[]{2};
 
         Solver.initialize(gridSize, clues);
-        IntegerProperty[][] grid = Solver.getGrid();
 
+        //Add separately for better tab (focus) order
+        for(int i = 1; i <= gridSize; i++) {
+            gridPane.add(new ClueBoxes(true), 0, i);
+        }
+        for(int i = 1; i <= gridSize; i++) {
+            gridPane.add(new ClueBoxes(false), i, 0);
+        }
+
+        IntegerProperty[][] grid = Solver.getGrid();
         for(int i = 0; i < gridSize; i++) {
             for(int j = 0; j < gridSize; j++) {
-                gridPane.add(new Cell(grid[i][j]), i, j);
+                gridPane.add(new Cell(grid[i][j]), i + 1, j + 1);
             }
         }
 
