@@ -1,6 +1,7 @@
 package sample;
 
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.HBox;
@@ -11,6 +12,7 @@ import javafx.scene.layout.VBox;
 class ClueBoxes extends Pane {
     private Pane container;
     private int maxBoxCount;
+    private boolean isHorizontal;
 
     ClueBoxes(boolean isHorizontal, int maxBoxCount) {
         if (isHorizontal) {
@@ -25,6 +27,7 @@ class ClueBoxes extends Pane {
         this.setPadding(new Insets(1));
         this.getChildren().add(container);
         this.maxBoxCount = maxBoxCount;
+        this.isHorizontal = isHorizontal;
         addTextField();
         addTextField();
     }
@@ -32,20 +35,12 @@ class ClueBoxes extends Pane {
     private void addTextField() {
         TextField txt = new TextField();
         txt.setPrefSize(30, 30);
+        txt.setMaxHeight(Double.MAX_VALUE);
 
         int size = container.getChildren().size();
-        if(container instanceof HBox) {
-            HBox.setHgrow(txt, Priority.NEVER);
-            if(size > 0) {
-                HBox.setHgrow(container.getChildren().get(size - 1), Priority.ALWAYS);
-            }
-        }
-        else {
-            txt.setMaxHeight(Double.MAX_VALUE);
-            VBox.setVgrow(txt, Priority.NEVER);
-            if(size > 0) {
-                VBox.setVgrow(container.getChildren().get(size - 1), Priority.ALWAYS);
-            }
+        setGrow(txt, Priority.NEVER);
+        if(size > 0) {
+            setGrow(container.getChildren().get(size - 1), Priority.ALWAYS);
         }
 
         txt.textProperty().addListener(e -> listener());
@@ -67,24 +62,32 @@ class ClueBoxes extends Pane {
         if(last.getText().isEmpty()) {
             for(int i = size - 2; i >= 1; i--) {
                 if(!((TextField) container.getChildren().get(i)).getText().isEmpty()) {
-                    if(container instanceof HBox) {
-                        HBox.setHgrow(container.getChildren().get(i + 1), Priority.NEVER);
-                    }
-                    else {
-                        VBox.setVgrow(container.getChildren().get(i + 1), Priority.NEVER);
-                    }
                     break;
                 }
 
                 TextField toRemove = ((TextField) container.getChildren().get(i + 1));
                 toRemove.textProperty().removeListener(e -> listener());
+                //It is possible to remove items from the list while iterating over it
+                //because we iterate from the back to the front
                 container.getChildren().remove(toRemove);
             }
+
+            //Use call to size() because size might have changed since last call
+            setGrow(container.getChildren().get(container.getChildren().size() - 1), Priority.NEVER);
         }
         else {
             if(size < maxBoxCount) {
                 addTextField();
             }
+        }
+    }
+
+    private void setGrow(Node node, Priority priority) {
+        if(isHorizontal) {
+            HBox.setHgrow(node, priority);
+        }
+        else {
+            VBox.setVgrow(node, priority);
         }
     }
 }
