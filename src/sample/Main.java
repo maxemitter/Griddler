@@ -53,12 +53,13 @@ public class Main extends Application {
 
         Solver.initialize(gridSize, clues);
 
+        int maxBoxCount = (int) Math.ceil(gridSize / 2.0);
         //Add separately for better tab (focus) order
         for(int i = 1; i <= gridSize; i++) {
-            gridPane.add(new ClueBoxes(true), 0, i);
+            gridPane.add(new ClueBoxes(true, maxBoxCount), 0, i);
         }
         for(int i = 1; i <= gridSize; i++) {
-            gridPane.add(new ClueBoxes(false), i, 0);
+            gridPane.add(new ClueBoxes(false, maxBoxCount), i, 0);
         }
 
         IntegerProperty[][] grid = Solver.getGrid();
