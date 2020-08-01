@@ -2,21 +2,51 @@ package sample;
 
 import javafx.application.Application;
 import javafx.beans.property.IntegerProperty;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+    private boolean isAutomatic;
+    private Button btn_automatic;
+
     @Override
     public void start(Stage primaryStage) {
         int gridSize = 15;
-        VBox root = new VBox();
+        isAutomatic = false;
+
         GridPane gridPane = new GridPane();
+
+        GridPane controlGrid = new GridPane();
 
         Button btn_step = new Button("Next Step");
         btn_step.setOnAction(e -> Solver.nextStep());
+        controlGrid.add(btn_step, 0, 0);
+
+        btn_automatic = new Button("Start automatic step");
+        btn_automatic.setOnAction(e -> btn_automaticAction());
+        controlGrid.add(btn_automatic, 0, 3);
+
+        controlGrid.add(new Label("Time between steps [ms]"), 0, 4);
+
+        TextField txt_automaticTime = new TextField("10");
+        txt_automaticTime.setPrefWidth(50);
+        controlGrid.add(txt_automaticTime, 1, 4);
+
+        Button btn_reset = new Button("Reset");
+        controlGrid.add(btn_reset, 0, 6);
+
+        Button btn_changeGrid = new Button("Change grid size");
+        controlGrid.add(btn_changeGrid, 0, 8);
+
+        controlGrid.setPadding(new Insets(10));
+        controlGrid.setHgap(5);
+        controlGrid.setVgap(5);
+        gridPane.add(controlGrid, 0, 0);
 
         int[][][] clues = new int[2][gridSize][];
         clues[0][0] = new int[]{1, 3};
@@ -69,14 +99,24 @@ public class Main extends Application {
             }
         }
 
-        root.getChildren().addAll(btn_step, gridPane);
-
+        gridPane.setPadding(new Insets(10));
         primaryStage.setTitle("Nonogram-Solver");
-        primaryStage.setScene(new Scene(root, 800, 800));
+        primaryStage.setScene(new Scene(gridPane, 800, 800));
         primaryStage.show();
     }
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    private void btn_automaticAction() {
+        isAutomatic = !isAutomatic;
+
+        if(isAutomatic) {
+            btn_automatic.setText("Stop automatic step");
+        }
+        else {
+            btn_automatic.setText("Start automatic step");
+        }
     }
 }
