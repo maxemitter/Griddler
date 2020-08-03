@@ -1,7 +1,6 @@
 package sample;
 
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.HBox;
@@ -13,6 +12,7 @@ class ClueBoxes extends Pane {
     private Pane container;
     private int maxBoxCount;
     private boolean isHorizontal;
+    private ClueField last;
 
     ClueBoxes(boolean isHorizontal, int maxBoxCount) {
         if (isHorizontal) {
@@ -28,66 +28,78 @@ class ClueBoxes extends Pane {
         this.getChildren().add(container);
         this.maxBoxCount = maxBoxCount;
         this.isHorizontal = isHorizontal;
-        addTextField();
-        addTextField();
+
+        last = new ClueField();
+        last.textProperty().addListener(e -> update());
+        last.setGrow(Priority.NEVER);
+        container.getChildren().add(last);
+        addTextField("");
     }
 
-    private void addTextField() {
-        TextField txt = new TextField();
-        txt.setPrefSize(30, 30);
-        txt.setMaxHeight(Double.MAX_VALUE);
-
+    private void update() {
         int size = container.getChildren().size();
-        setGrow(txt, Priority.NEVER);
-        if(size > 0) {
-            setGrow(container.getChildren().get(size - 1), Priority.ALWAYS);
+        if(!last.getText().isEmpty() && size < maxBoxCount) {
+            TextField first = (TextField) container.getChildren().get(0);
+            if(first.getText().isEmpty()) {
+                first.setText(last.getText());
+                first.requestFocus();
+                first.end();
+            }
+            else {
+                addTextField(last.getText());
+            }
+            last.clear();
+        }
+    }
+
+    private void addTextField(String text) {
+        ClueField txt = new ClueField(text);
+        txt.addFocusListener();
+
+        container.getChildren().add(container.getChildren().size() - 1, txt);
+        txt.requestFocus();
+        txt.end();
+    }
+
+    private class ClueField extends TextField {
+        ClueField(String text) {
+            this.setPrefSize(30, 30);
+            this.setMaxHeight(Double.MAX_VALUE);
+            this.setText(text);
+            this.setGrow(Priority.ALWAYS);
+
+            addTextFormatter();
         }
 
-        txt.textProperty().addListener(e -> listener());
-        txt.setTextFormatter(new TextFormatter<>(change -> {
-            if(change.isAdded()) {
-                return change.getControlNewText().matches("[0-9]{1,2}") ? change : null;
-            }
-            return change;
-        }));
+        ClueField() {
+            this("");
+        }
 
-        container.getChildren().add(txt);
-    }
-
-    private void listener() {
-        int size = container.getChildren().size();
-
-        TextField last = (TextField) container.getChildren().get(size - 1);
-
-        if(last.getText().isEmpty()) {
-            for(int i = size - 2; i >= 1; i--) {
-                if(!((TextField) container.getChildren().get(i)).getText().isEmpty()) {
-                    break;
+        void addFocusListener() {
+            this.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                if(!newValue && this.getText().isEmpty() && container.getChildren().size() > 2) {
+                    container.getChildren().remove(this);
+                    update();
                 }
-
-                TextField toRemove = ((TextField) container.getChildren().get(i + 1));
-                toRemove.textProperty().removeListener(e -> listener());
-                //It is possible to remove items from the list while iterating over it
-                //because we iterate from the back to the front
-                container.getChildren().remove(toRemove);
-            }
-
-            //Use call to size() because size might have changed since last call
-            setGrow(container.getChildren().get(container.getChildren().size() - 1), Priority.NEVER);
+            });
         }
-        else {
-            if(size < maxBoxCount) {
-                addTextField();
+
+        void setGrow(Priority priority) {
+            if(isHorizontal) {
+                HBox.setHgrow(this, priority);
+            }
+            else {
+                VBox.setVgrow(this, priority);
             }
         }
-    }
 
-    private void setGrow(Node node, Priority priority) {
-        if(isHorizontal) {
-            HBox.setHgrow(node, priority);
-        }
-        else {
-            VBox.setVgrow(node, priority);
+        private void addTextFormatter() {
+            this.setTextFormatter(new TextFormatter<>(change -> {
+                if(change.isAdded()) {
+                    return change.getControlNewText().matches("[0-9]{1,2}") ? change : null;
+                }
+                return change;
+            }));
         }
     }
 }
