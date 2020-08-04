@@ -36,6 +36,33 @@ class ClueBoxes extends Pane {
         addTextField("");
     }
 
+    int[] toIntArray() {
+        int size = container.getChildren().size();
+        int[] array = new int[size];
+        for(int i = 0; i < size; i++) {
+            array[i] = Integer.parseInt(((TextField) container.getChildren().get(i)).getText());
+        }
+        return array;
+    }
+
+    void setEditable(boolean value) {
+        for(int i = 0; i < container.getChildren().size() - 1; i++) {
+            ((TextField) container.getChildren().get(i)).setEditable(value);
+        }
+
+        if(last.getText().isEmpty()) {
+            if(value) {
+                container.getChildren().add(last);
+            }
+            else {
+                container.getChildren().remove(last);
+            }
+        }
+        else {
+            last.setEditable(value);
+        }
+    }
+
     private void update() {
         int size = container.getChildren().size();
         if(!last.getText().isEmpty() && size < maxBoxCount) {

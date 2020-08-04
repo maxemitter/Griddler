@@ -8,15 +8,19 @@ import java.util.Arrays;
 
 class Solver {
     private static int gridSize;
-    private static int currentLineIndex = 0;
-    private static int currentSide = 0;
+    private static int currentLineIndex;
+    private static int currentSide;
     private static IntegerProperty[][] grid;
     private static int[][][] clues;
-    private static int neededSteps = 0;
+    private static int neededSteps;
+    private static boolean isInitialized = false;
+    private static boolean isCleared = true;
 
-    static void initialize(int gridSize, int[][][] clues) {
+    static void initialize(int gridSize) {
         Solver.gridSize = gridSize;
-        Solver.clues = clues;
+        Solver.currentLineIndex = 0;
+        Solver.currentSide = 0;
+        Solver.neededSteps = 0;
 
         grid = new IntegerProperty[gridSize][gridSize];
         for(int i = 0; i < gridSize; i++) {
@@ -24,9 +28,35 @@ class Solver {
                 grid[i][j] = new SimpleIntegerProperty();
             }
         }
+
+        isInitialized = true;
+        isCleared = true;
+    }
+
+    static void reset() {
+        if(!isInitialized) {
+            throw new IllegalStateException("Solver has not been initialized");
+        }
+
+        Solver.currentLineIndex = 0;
+        Solver.currentSide = 0;
+        Solver.neededSteps = 0;
+        for(int i = 0; i < gridSize; i++) {
+            for(int j = 0; j < gridSize; j++) {
+                grid[i][j].set(0);
+            }
+        }
+
+        isCleared = true;
     }
 
     static void nextStep() {
+        if(!isInitialized) {
+            throw new IllegalStateException("Solver has not been initialized");
+        }
+        if(isCleared) {
+            isCleared = false;
+        }
         boolean finished = true;
 
         for(int i = 0; i < gridSize; i++) {
@@ -103,6 +133,14 @@ class Solver {
 
     static IntegerProperty[][] getGrid() {
         return grid;
+    }
+
+    static void setClues(int[][][] clues) {
+        if(!isCleared) {
+            reset();
+        }
+
+        Solver.clues = clues;
     }
 
     private static ArrayList<int[]> getPossMoves(int[] clues) {
