@@ -1,6 +1,7 @@
 package sample;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -11,10 +12,14 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+    private GridPane gridPane;
     private boolean isAutomatic;
     private Button btn_automatic;
     private boolean hasStarted;
     private ClueBoxes[] clueBoxes;
+    private Button btn_step;
+    private Button btn_reset;
+    private Button btn_changeGrid;
     private TextField txt_automaticTime;
     private int gridSize = 15;
 
@@ -25,11 +30,11 @@ public class Main extends Application {
 
         clueBoxes = new ClueBoxes[gridSize * 2];
 
-        GridPane gridPane = new GridPane();
+        gridPane = new GridPane();
 
         GridPane controlGrid = new GridPane();
 
-        Button btn_step = new Button("Next Step");
+        btn_step = new Button("Next Step");
         btn_step.setOnAction(e -> {
             if(!hasStarted) {
                 setStarted(true);
@@ -48,15 +53,18 @@ public class Main extends Application {
         txt_automaticTime.setPrefWidth(50);
         controlGrid.add(txt_automaticTime, 1, 4);
 
-        Button btn_reset = new Button("Reset");
+        btn_reset = new Button("Reset");
         btn_reset.setOnAction(e -> {
             if(hasStarted) {
                 setStarted(false);
             }
+
+            btn_step.setDisable(false);
+            btn_automatic.setDisable(false);
         });
         controlGrid.add(btn_reset, 0, 6);
 
-        Button btn_changeGrid = new Button("Change grid size");
+        btn_changeGrid = new Button("Change grid size");
         controlGrid.add(btn_changeGrid, 0, 8);
 
         controlGrid.setPadding(new Insets(10));
@@ -88,6 +96,7 @@ public class Main extends Application {
         primaryStage.setTitle("Nonogram-Solver");
         primaryStage.setScene(new Scene(gridPane, 800, 800));
         primaryStage.show();
+        gridPane.requestFocus();
     }
 
     public static void main(String[] args) {
@@ -96,6 +105,10 @@ public class Main extends Application {
 
     private void btn_automaticAction() {
         isAutomatic = !isAutomatic;
+        btn_step.setDisable(isAutomatic);
+        txt_automaticTime.setDisable(isAutomatic);
+        btn_reset.setDisable(isAutomatic);
+        btn_changeGrid.setDisable(isAutomatic);
 
         if(isAutomatic) {
             btn_automatic.setText("Stop automatic step");
@@ -114,6 +127,15 @@ public class Main extends Application {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                }
+
+                if(Solver.isFinished()) {
+                    Platform.runLater(() -> {
+                        btn_automaticAction();
+                        btn_step.setDisable(true);
+                        btn_automatic.setDisable(true);
+                        gridPane.requestFocus();
+                    });
                 }
             }).start();
         }
