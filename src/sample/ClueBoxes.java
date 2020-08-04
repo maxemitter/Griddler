@@ -1,6 +1,7 @@
 package sample;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.HBox;
@@ -92,6 +93,7 @@ class ClueBoxes extends Pane {
         ClueField(String text) {
             this.setPrefSize(30, 30);
             this.setMaxHeight(Double.MAX_VALUE);
+            this.setAlignment(Pos.CENTER);
             this.setText(text);
             this.setGrow(Priority.ALWAYS);
 

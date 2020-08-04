@@ -15,6 +15,7 @@ class Solver {
     private static int neededSteps;
     private static boolean isInitialized = false;
     private static boolean isCleared = true;
+    private static boolean isFinished;
 
     static void initialize(int gridSize) {
         Solver.gridSize = gridSize;
@@ -31,6 +32,7 @@ class Solver {
 
         isInitialized = true;
         isCleared = true;
+        isFinished = false;
     }
 
     static void reset() {
@@ -48,91 +50,101 @@ class Solver {
         }
 
         isCleared = true;
+        isFinished = false;
     }
 
     static void nextStep() {
         if(!isInitialized) {
             throw new IllegalStateException("Solver has not been initialized");
         }
+
         if(isCleared) {
             isCleared = false;
         }
-        boolean finished = true;
 
-        for(int i = 0; i < gridSize; i++) {
-            for(int j = 0; j < gridSize; j++) {
-                if(grid[i][j].get() == 0) {
-                    finished = false;
-                    break;
-                }
-            }
-        }
+        if(!isFinished) {
+            boolean finished = true;
 
-        if(finished) {
-            System.out.println("Finished with " + neededSteps + " steps!");
-        }
-        else {
-            int[] currentLine = new int[gridSize];
-            int[] newLineItems;
-
-            finished = true; //Reset finished to use it as finishedLine
-
-            //Copy current Line into currentLine and check whether the line is already done
-            if(currentSide == 0) {
-                for(int i = 0; i < gridSize; i++) {
-                    currentLine[i] = grid[i][currentLineIndex].get();
-
-                    if(grid[i][currentLineIndex].get() == 0) {
+            for(int i = 0; i < gridSize; i++) {
+                for(int j = 0; j < gridSize; j++) {
+                    if(grid[i][j].get() == 0) {
                         finished = false;
+                        break;
                     }
                 }
+            }
+
+            if(finished) {
+                System.out.println("Finished with " + neededSteps + " steps!");
+                isFinished = true;
             }
             else {
-                for(int i = 0; i < gridSize; i++) {
-                    currentLine[i] = grid[currentLineIndex][i].get();
+                int[] currentLine = new int[gridSize];
+                int[] newLineItems;
 
-                    if(grid[currentLineIndex][i].get() == 0) {
-                        finished = false;
-                    }
-                }
-            }
+                finished = true; //Reset finished to use it as finishedLine
 
-            if(!finished) //Only execute if unfinished
-            {
-                newLineItems = solveLine(currentLine, clues[currentSide][currentLineIndex]);
-
+                //Copy current Line into currentLine and check whether the line is already done
                 if(currentSide == 0) {
                     for(int i = 0; i < gridSize; i++) {
-                        grid[i][currentLineIndex].set(newLineItems[i]);
+                        currentLine[i] = grid[i][currentLineIndex].get();
+
+                        if(grid[i][currentLineIndex].get() == 0) {
+                            finished = false;
+                        }
                     }
                 }
                 else {
                     for(int i = 0; i < gridSize; i++) {
-                        grid[currentLineIndex][i].set(newLineItems[i]);
+                        currentLine[i] = grid[currentLineIndex][i].get();
+
+                        if(grid[currentLineIndex][i].get() == 0) {
+                            finished = false;
+                        }
                     }
                 }
-            }
 
-            //Execute always
-            if(currentLineIndex == gridSize - 1) {
-                currentSide = (currentSide + 1) % 2;
-                currentLineIndex = 0;
-            }
-            else {
-                currentLineIndex++;
-            }
+                if(!finished) //Only execute if unfinished
+                {
+                    newLineItems = solveLine(currentLine, clues[currentSide][currentLineIndex]);
 
-            if(finished) //Reenter function and leave without increasing neededSteps because it will be incremented afterwards
-            {
-                nextStep();
-                return;
+                    if(currentSide == 0) {
+                        for(int i = 0; i < gridSize; i++) {
+                            grid[i][currentLineIndex].set(newLineItems[i]);
+                        }
+                    }
+                    else {
+                        for(int i = 0; i < gridSize; i++) {
+                            grid[currentLineIndex][i].set(newLineItems[i]);
+                        }
+                    }
+                }
+
+                //Execute always
+                if(currentLineIndex == gridSize - 1) {
+                    currentSide = (currentSide + 1) % 2;
+                    currentLineIndex = 0;
+                }
+                else {
+                    currentLineIndex++;
+                }
+
+                if(finished) //Reenter function and leave without increasing neededSteps because it will be incremented afterwards
+                {
+                    nextStep();
+                    return;
+                }
+                neededSteps++;
             }
-            neededSteps++;
         }
     }
 
     static IntegerProperty[][] getGrid() {
         return grid;
+    }
+
+    static boolean isFinished() {
+        return isFinished;
     }
 
     static void setClues(int[][][] clues) {

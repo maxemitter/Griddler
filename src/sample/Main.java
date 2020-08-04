@@ -15,6 +15,7 @@ public class Main extends Application {
     private Button btn_automatic;
     private boolean hasStarted;
     private ClueBoxes[] clueBoxes;
+    private TextField txt_automaticTime;
     private int gridSize = 15;
 
     @Override
@@ -43,7 +44,7 @@ public class Main extends Application {
 
         controlGrid.add(new Label("Time between steps [ms]"), 0, 4);
 
-        TextField txt_automaticTime = new TextField("10");
+        txt_automaticTime = new TextField("10");
         txt_automaticTime.setPrefWidth(50);
         controlGrid.add(txt_automaticTime, 1, 4);
 
@@ -98,9 +99,23 @@ public class Main extends Application {
 
         if(isAutomatic) {
             btn_automatic.setText("Stop automatic step");
+
             if(!hasStarted) {
                 setStarted(true);
             }
+
+            int delay = Integer.parseInt(txt_automaticTime.getText());
+            new Thread(() -> {
+                while(isAutomatic && !Solver.isFinished()) {
+                    Solver.nextStep();
+
+                    try {
+                        Thread.sleep(delay);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
         }
         else {
             btn_automatic.setText("Start automatic step");
