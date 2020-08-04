@@ -47,9 +47,11 @@ class ClueBoxes extends Pane {
     }
 
     void setEditable(boolean value) {
-        for(int i = 0; i < container.getChildren().size() - 1; i++) {
+        for(int i = 0; i < container.getChildren().size(); i++) {
             ((TextField) container.getChildren().get(i)).setEditable(value);
         }
+
+        last.setEditable(value);
 
         if(last.getText().isEmpty()) {
             if(value) {
@@ -58,9 +60,6 @@ class ClueBoxes extends Pane {
             else {
                 container.getChildren().remove(last);
             }
-        }
-        else {
-            last.setEditable(value);
         }
     }
 
