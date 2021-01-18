@@ -1,4 +1,4 @@
-package sample;
+package com.mitmax.logic;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -6,7 +6,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-class Solver {
+public class Solver {
     private static int gridSize;
     private static int currentLineIndex;
     private static int currentSide;
@@ -17,7 +17,7 @@ class Solver {
     private static boolean isCleared = true;
     private static boolean isFinished;
 
-    static void initialize(int gridSize) {
+    public static void initialize(int gridSize) {
         Solver.gridSize = gridSize;
         Solver.currentLineIndex = 0;
         Solver.currentSide = 0;
@@ -35,7 +35,7 @@ class Solver {
         isFinished = false;
     }
 
-    static void reset() {
+    public static void reset() {
         if(!isInitialized) {
             throw new IllegalStateException("Solver has not been initialized");
         }
@@ -53,7 +53,7 @@ class Solver {
         isFinished = false;
     }
 
-    static void nextStep() {
+    public static void nextStep() {
         if(!isInitialized) {
             throw new IllegalStateException("Solver has not been initialized");
         }
@@ -139,15 +139,15 @@ class Solver {
         }
     }
 
-    static IntegerProperty[][] getGrid() {
+    public static IntegerProperty[][] getGrid() {
         return grid;
     }
 
-    static boolean isFinished() {
+    public static boolean isFinished() {
         return isFinished;
     }
 
-    static void setClues(int[][][] clues) {
+    public static void setClues(int[][][] clues) {
         if(!isCleared) {
             reset();
         }

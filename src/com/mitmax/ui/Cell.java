@@ -1,11 +1,11 @@
-package sample;
+package com.mitmax.ui;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
-class Cell extends Pane {
-    Cell(IntegerProperty bounded) {
+public class Cell extends Pane {
+    public Cell(IntegerProperty bounded) {
         this.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
         this.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, null)));
 

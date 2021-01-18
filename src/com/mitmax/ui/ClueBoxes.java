@@ -1,4 +1,4 @@
-package sample;
+package com.mitmax.ui;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -9,13 +9,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-class ClueBoxes extends Pane {
+public class ClueBoxes extends Pane {
     private Pane container;
     private int maxBoxCount;
     private boolean isHorizontal;
     private ClueField last;
 
-    ClueBoxes(boolean isHorizontal, int maxBoxCount) {
+    public ClueBoxes(boolean isHorizontal, int maxBoxCount) {
         if (isHorizontal) {
             HBox hBox = new HBox(1);
             hBox.setPrefWidth(maxBoxCount * 30 + maxBoxCount);
@@ -37,7 +37,7 @@ class ClueBoxes extends Pane {
         addTextField("");
     }
 
-    int[] toIntArray() {
+    public int[] toIntArray() {
         int size = container.getChildren().size();
         int[] array = new int[size];
         for(int i = 0; i < size; i++) {
@@ -46,7 +46,7 @@ class ClueBoxes extends Pane {
         return array;
     }
 
-    void setEditable(boolean value) {
+    public void setEditable(boolean value) {
         for(int i = 0; i < container.getChildren().size(); i++) {
             ((TextField) container.getChildren().get(i)).setEditable(value);
         }

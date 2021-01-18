@@ -1,5 +1,8 @@
-package sample;
+package com.mitmax;
 
+import com.mitmax.logic.Solver;
+import com.mitmax.ui.Cell;
+import com.mitmax.ui.ClueBoxes;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
@@ -11,7 +14,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-public class Main extends Application {
+public class NonogramSolver extends Application {
     private GridPane gridPane;
     private boolean isAutomatic;
     private Button btn_automatic;
