@@ -12,9 +12,9 @@ import java.io.IOException;
 public class NonogramSolver extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader();
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ui/fx/layout.fxml"));
+        Parent root = fxmlLoader.load();
         Controller controller = fxmlLoader.getController();
-        Parent root = fxmlLoader.load(getClass().getResource("ui/fx/layout.fxml").openStream());
 
         primaryStage.setTitle("Nonogram Solver");
         primaryStage.setScene(new Scene(root));
