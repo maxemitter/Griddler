@@ -10,6 +10,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class Controller {
     public GridPane grp_root;
     public Button btn_step;
@@ -22,24 +25,12 @@ public class Controller {
     private final int initialGridSize = 15;
     private boolean isAutomatic;
     private boolean hasStarted;
+    private Timer automaticTimer;
+    private TimerTask automaticTimerTask;
 
     @FXML
     public void initialize() {
-        btn_step.setOnAction(e -> {
-            if(!hasStarted) {
-                setStarted(true);
-            }
-            Solver.nextStep();
-        });
-        btn_automatic.setOnAction(e -> btn_automaticAction());
-        btn_reset.setOnAction(e -> {
-            if(hasStarted) {
-                setStarted(false);
-            }
-
-            btn_step.setDisable(false);
-            btn_automatic.setDisable(false);
-        });
+        setActions();
 
         clueBoxes = new ClueBoxes[initialGridSize * 2];
         setClueBoxes(initialGridSize);
@@ -71,42 +62,66 @@ public class Controller {
         }
     }
 
+    private void setActions() {
+        btn_step.setOnAction(e -> {
+            if(!hasStarted) {
+                setStarted(true);
+            }
+            Solver.nextStep();
+        });
+
+        automaticTimer = new Timer("AutomaticTimer", true);
+        automaticTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if(!isAutomatic) {
+                    this.cancel();
+                }
+
+                Solver.nextStep();
+
+                if(Solver.isFinished()) {
+                    this.cancel();
+                    Platform.runLater(() -> {
+                        toggleAutomatic();
+                        btn_step.setDisable(true);
+                        btn_automatic.setDisable(true);
+                        grp_root.requestFocus();
+                    });
+                }
+            }
+        };
+        btn_automatic.setOnAction(e -> btn_automaticAction());
+
+        btn_reset.setOnAction(e -> {
+            if(hasStarted) {
+                setStarted(false);
+            }
+
+            btn_step.setDisable(false);
+            btn_automatic.setDisable(false);
+        });
+    }
+
     private void btn_automaticAction() {
-        isAutomatic = !isAutomatic;
-        btn_step.setDisable(isAutomatic);
-        txt_stepTime.setDisable(isAutomatic);
-        btn_reset.setDisable(isAutomatic);
-        btn_changeSize.setDisable(isAutomatic);
-        btn_automatic.setText((isAutomatic ? "Stop" : "Start") + " automatic step");
+        toggleAutomatic();
 
         if(isAutomatic) {
             if(!hasStarted) {
                 setStarted(true);
             }
 
-            int delay = Integer.parseInt(txt_stepTime.getText());
-
-            new Thread(() -> {
-                while(isAutomatic && !Solver.isFinished()) {
-                    Solver.nextStep();
-
-                    try {
-                        Thread.sleep(delay);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                if(Solver.isFinished()) {
-                    Platform.runLater(() -> {
-                        btn_automaticAction();
-                        btn_step.setDisable(true);
-                        btn_automatic.setDisable(true);
-                        grp_root.requestFocus();
-                    });
-                }
-            }).start();
+            automaticTimer.schedule(automaticTimerTask, 0, Integer.parseInt(txt_stepTime.getText()));
         }
+    }
+
+    private void toggleAutomatic() {
+        isAutomatic = !isAutomatic;
+        btn_step.setDisable(isAutomatic);
+        txt_stepTime.setDisable(isAutomatic);
+        btn_reset.setDisable(isAutomatic);
+        btn_changeSize.setDisable(isAutomatic);
+        btn_automatic.setText((isAutomatic ? "Stop" : "Start") + " automatic step");
     }
 
     private void setStarted(boolean value) {
