@@ -21,6 +21,7 @@ public class Controller {
     public Button btn_reset;
     public Button btn_changeSize;
 
+    private static Controller controller;
     private ClueBoxes[] clueBoxes;
     private final int initialGridSize = 15;
     private boolean isAutomatic;
@@ -43,10 +44,20 @@ public class Controller {
                 grp_root.add(new Cell(grid[i][j]), i + 1, j + 1);
             }
         }
+
+        controller = this;
     }
 
     public GridPane getRoot() {
         return grp_root;
+    }
+
+    public int getGridSize() {
+        return initialGridSize;
+    }
+
+    public static Controller getInstance() {
+        return controller;
     }
 
     private void setClueBoxes(int size) {
@@ -65,54 +76,61 @@ public class Controller {
     private void setActions() {
         btn_step.setOnAction(e -> {
             if(!hasStarted) {
-                setStarted(true);
+                if(!start()) {
+                    return;
+                }
             }
+
+
             Solver.nextStep();
         });
 
         automaticTimer = new Timer("AutomaticTimer", true);
-        automaticTimerTask = new TimerTask() {
-            @Override
-            public void run() {
-                if(!isAutomatic) {
-                    this.cancel();
-                }
+        btn_automatic.setOnAction(e -> {
+            toggleAutomatic();
 
-                Solver.nextStep();
-
-                if(Solver.isFinished()) {
-                    this.cancel();
-                    Platform.runLater(() -> {
+            if(isAutomatic) {
+                if(!hasStarted) {
+                    if(!start()) {
                         toggleAutomatic();
-                        btn_step.setDisable(true);
-                        btn_automatic.setDisable(true);
-                        grp_root.requestFocus();
-                    });
+                        return;
+                    }
                 }
+
+                automaticTimerTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        if(!isAutomatic) {
+                            this.cancel();
+                            return;
+                        }
+
+                        Solver.nextStep();
+
+                        if(Solver.isFinished()) {
+                            this.cancel();
+                            Platform.runLater(() -> {
+                                toggleAutomatic();
+                                btn_step.setDisable(true);
+                                btn_automatic.setDisable(true);
+                                grp_root.requestFocus();
+                            });
+                        }
+                    }
+                };
+                automaticTimer.schedule(automaticTimerTask, 0, Integer.parseInt(txt_stepTime.getText()));
             }
-        };
-        btn_automatic.setOnAction(e -> btn_automaticAction());
+        });
 
         btn_reset.setOnAction(e -> {
             if(hasStarted) {
-                setStarted(false);
+                stop();
+                automaticTimerTask.cancel();
             }
 
             btn_step.setDisable(false);
             btn_automatic.setDisable(false);
         });
-    }
-
-    private void btn_automaticAction() {
-        toggleAutomatic();
-
-        if(isAutomatic) {
-            if(!hasStarted) {
-                setStarted(true);
-            }
-
-            automaticTimer.schedule(automaticTimerTask, 0, Integer.parseInt(txt_stepTime.getText()));
-        }
     }
 
     private void toggleAutomatic() {
@@ -124,25 +142,37 @@ public class Controller {
         btn_automatic.setText((isAutomatic ? "Stop" : "Start") + " automatic step");
     }
 
-    private void setStarted(boolean value) {
-        hasStarted = value;
+    private boolean start() {
+        setClueBoxesEditable(false);
 
-        for(ClueBoxes currentClueBox : clueBoxes) {
-            currentClueBox.setEditable(!value);
-        }
+        int[][][] clues = new int[2][initialGridSize][];
 
-        if(value) {
-            int[][][] clues = new int[2][initialGridSize][];
-
+        try {
             for(int i = 0; i < initialGridSize; i++) {
                 clues[0][i] = clueBoxes[i].toIntArray();
                 clues[1][i] = clueBoxes[i + initialGridSize].toIntArray();
             }
-
-            Solver.setClues(clues);
+        } catch (IllegalArgumentException ex) {
+            stop();
+            return false;
         }
-        else {
-            Solver.reset();
+
+        Solver.setClues(clues);
+        hasStarted = true;
+        return true;
+    }
+
+    private void stop() {
+        hasStarted = false;
+
+        setClueBoxesEditable(true);
+
+        Solver.reset();
+    }
+
+    private void setClueBoxesEditable(boolean editable) {
+        for(ClueBoxes currentClueBox : clueBoxes) {
+            currentClueBox.setEditable(editable);
         }
     }
 }

@@ -1,7 +1,9 @@
 package com.mitmax.ui;
 
+import com.mitmax.ui.fx.Controller;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.HBox;
@@ -10,19 +12,20 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 public class ClueBoxes extends Pane {
-    private Pane container;
-    private int maxBoxCount;
-    private boolean isHorizontal;
-    private ClueField last;
+    private final Pane container;
+    private final int maxBoxCount;
+    private final boolean isHorizontal;
+    private final ClueField last;
 
     public ClueBoxes(boolean isHorizontal, int maxBoxCount) {
+        int prefSize = maxBoxCount * 30 + maxBoxCount;
         if (isHorizontal) {
             HBox hBox = new HBox(1);
-            hBox.setPrefWidth(maxBoxCount * 30 + maxBoxCount);
+            hBox.setPrefWidth(prefSize);
             container = hBox;
         } else {
             VBox vBox = new VBox(1);
-            vBox.setPrefHeight(maxBoxCount * 30 + maxBoxCount);
+            vBox.setPrefHeight(prefSize);
             container = vBox;
         }
         this.setPadding(new Insets(1));
@@ -40,9 +43,24 @@ public class ClueBoxes extends Pane {
     public int[] toIntArray() {
         int size = container.getChildren().size();
         int[] array = new int[size];
+        int sum = 0;
+
         for(int i = 0; i < size; i++) {
-            array[i] = Integer.parseInt(((TextField) container.getChildren().get(i)).getText());
+            TextField txt = (TextField) container.getChildren().get(i);
+            try {
+                array[i] = Integer.parseInt(txt.getText());
+                sum += array[i];
+            } catch (NumberFormatException ex) {
+                highlight(txt, true);
+                throw new IllegalArgumentException();
+            }
         }
+
+        if(sum + size - 1 > Controller.getInstance().getGridSize()) {
+            highlight(null, true);
+            throw new IllegalArgumentException();
+        }
+
         return array;
     }
 
@@ -88,6 +106,20 @@ public class ClueBoxes extends Pane {
         txt.end();
     }
 
+    private void highlight(Node node, boolean value) {
+        String style = value ? "-fx-text-box-border: red; -fx-focus-color: red;" : "";
+
+        if(node == null) {
+            for(int i = 0; i < container.getChildren().size(); i++) {
+                container.getChildren().get(i).setStyle(style);
+            }
+        }
+        else {
+            node.setStyle(style);
+            node.requestFocus();
+        }
+    }
+
     private class ClueField extends TextField {
         ClueField(String text) {
             this.setPrefSize(30, 30);
@@ -96,6 +128,7 @@ public class ClueBoxes extends Pane {
             this.setText(text);
             this.setGrow(Priority.ALWAYS);
 
+            this.textProperty().addListener((observable, oldValue, newValue) -> highlight(null, false));
             addTextFormatter();
         }
 
