@@ -1,4 +1,4 @@
-# Nonogram-Solver
+# Griddler
 Solver for [Nonogram-Puzzles](https://en.wikipedia.org/wiki/Nonogram) built on the [JavaFX](https://openjfx.io/) framework for Java.
 
 ## Status
