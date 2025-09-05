@@ -2,11 +2,15 @@
 Solver for [Nonogram-Puzzles](https://en.wikipedia.org/wiki/Nonogram) built on the [JavaFX](https://openjfx.io/) framework for Java.
 
 ## Status
-This project is currently under development and not ready to be released yet.
+This project is currently under development.  
+The main solver functionality works, but some features that would be nice to have are still missing.
 
-## Screenshots
+## Demo
 Once you start the program, you will first see this:
-![Picture of the program on startup](screenshots/initial.jpg)
+![Picture of the program on startup](media/initial.jpg)
+
+After entering the clues to the puzzle you want to solve, you can control the solver like demonstrated here:
+![Demo of the solver controls](media/demo.gif)
 
 ## Build instructions
 The following instructions are windows exclusive.
