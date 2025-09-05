@@ -16,7 +16,7 @@ public class NonogramSolver extends Application {
         Parent root = fxmlLoader.load();
         Controller controller = fxmlLoader.getController();
 
-        primaryStage.setTitle("Nonogram Solver");
+        primaryStage.setTitle("Griddler - Nonogram Solver");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
 
